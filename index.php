@@ -23,6 +23,7 @@ $app->addErrorMiddleware(true, true, true);
 
 include_once("components.php");
 include_once("tax.php");
+include_once("products.php");
 
 $app->get('/', function (Request $request, Response $response, $args)
 {
