@@ -7,10 +7,7 @@ use Slim\Routing\RouteContext;
 
 $app->delete('/api/components/{id}', function (Request $request, Response $response, $args) use ($dbh)
 {
-    $routeContext = RouteContext::fromRequest($request);
-    $route = $routeContext->getRoute();
-        
-    $component_id = $route->getArgument('id');
+    $component_id = RouteContext::fromRequest($request)->getRoute()->getArgument('id');
 
     $statement = $dbh->prepare('DELETE FROM components WHERE id = :id;');
     $statement->bindParam(":id", $component_id);
@@ -87,13 +84,14 @@ $app->post('/api/components', function (Request $request, Response $response, $a
     return $response;
 });
 
-$app->put('/api/components', function (Request $request, Response $response, $args) use ($dbh)
+$app->put('/api/components/{id}', function (Request $request, Response $response, $args) use ($dbh)
 { 
     $data = $request->getParsedBody();
+    $data["id"] = RouteContext::fromRequest($request)->getRoute()->getArgument('id');
 
-    if (!array_key_exists ("id", $data))
+    if (!is_numeric ($data["id"]))
     {
-        $response->getBody()->write(json_encode([ "error" => "Component id not set" ]));
+        $response->getBody()->write(json_encode([ "error" => "Component id must be numeric" ]));
         return $response->withStatus(400);
     }
 
